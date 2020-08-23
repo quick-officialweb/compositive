@@ -36,11 +36,18 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
     new UglifyJsPlugin({
       uglifyOptions: {
+        mangle: {
+          safari10: true
+        },
         compress: {
-          warnings: false
-        }
+          warnings: false,
+          drop_debugger: true,//console
+          drop_console: true,
+          pure_funcs: ['console.log', 'console.error']//移除console
+        },
       },
       sourceMap: config.build.productionSourceMap,
+      cache: true,
       parallel: true
     }),
     // extract css into its own file
@@ -85,7 +92,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
-      minChunks (module) {
+      minChunks(module) {
         // any required modules inside node_modules are extracted to vendor
         return (
           module.resource &&
@@ -128,7 +135,7 @@ if (config.build.productionGzip) {
 
   webpackConfig.plugins.push(
     new CompressionWebpackPlugin({
-      asset: '[path].gz[query]',
+      filename: '[path].gz[query]',
       algorithm: 'gzip',
       test: new RegExp(
         '\\.(' +
